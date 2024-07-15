@@ -1,0 +1,35 @@
+class CustomDataset(Dataset):
+    def __init__(self, root_dir, transform_image=None, transform_mask=None):
+        self.root_dir = root_dir
+        self.transform_image = transform_image
+        self.transform_mask = transform_mask
+        self.images_dir = os.path.join(root_dir, 'imgs')
+        self.masks_dir = os.path.join(root_dir, 'masks')
+        self.image_filenames = os.listdir(self.images_dir)
+        
+        self.image_filenames = [name for name in self.image_filenames if not name.startswith(".ipynb")]
+        
+
+
+    def __len__(self):
+        return len(self.image_filenames)
+
+    def __getitem__(self, idx):
+        img_name = os.path.join(self.images_dir, self.image_filenames[idx])
+        mask_name = os.path.join(self.masks_dir, self.image_filenames[idx].replace('img_', 'mask_').replace('.jpg', '.png'))
+        
+        
+
+        image = Image.open(img_name).convert('RGB')
+        mask = Image.open(mask_name).convert('RGB')  # Convert to grayscale for single channel mask
+
+        if self.transform_image:
+            image = self.transform_image(image)
+        if self.transform_mask:
+            mask = self.transform_mask(mask)
+
+        return image, mask
+        
+        
+        
+        
